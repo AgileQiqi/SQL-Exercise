@@ -18,3 +18,58 @@ Answer 1:
 
 Note: #NOT LIKE '%[^0-9]%' is filitering that there is at least 1 non-numeric data
       #LIKE '%[0-9]%' is selecting all which has at least one numeric data
+
+
+
+
+2.The database of naval ships that took part in World War II is under consideration. The database consists of the following relations: 
+Classes(class, type, country, numGuns, bore, displacement) 
+Ships(name, class, launched) 
+Battles(name, date) 
+Outcomes(ship, battle, result) 
+Ships in classes all have the same general design. A class is normally assigned either the name of the first ship built according to the corresponding design, or a name that is different from any ship name in the database. The ship whose name is assigned to a class is called a lead ship.
+The Classes relation includes the name of the class, type (can be either bb for a battle ship, or bc for a battle cruiser), country the ship was built in, the number of main guns, gun caliber (bore diameter in inches), and displacement (weight in tons). The Ships relation holds information about the ship name, the name of its corresponding class, and the year the ship was launched. The Battles relation contains names and dates of battles the ships participated in, and the Outcomes relation - the battle result for a given ship (may be sunk, damaged, or OK, the last value meaning the ship survived the battle unharmed). 
+Notes: 1) The Outcomes relation may contain ships not present in the Ships relation. 2) A ship sunk can’t participate in later battles. 3) For historical reasons, lead ships are referred to as head ships in many exercises.4) A ship found in the Outcomes table but not in the Ships table is still considered in the database. This is true even if it is sunk.
+
+
+Q:      List the names of lead ships in the database (including the Outcomes table).
+Ans:
+        SELECT c.class
+        FROM Classes c LEFT JOIN Ships s ON (c.class=s.class)
+        WHERE (c.class=s.name)
+        Union
+        SELECT c.class
+        FROM Classes c LEFT JOIN Outcomes o ON (o.ship=c.class)
+        WHERE (c.class=o.ship)
+Note:  # use UNION to get sunk ship from Outcomes
+
+
+3.The database schema consists of 4 tables:
+Company(ID_comp, name)
+Trip(trip_no, id_comp, plane, town_from, town_to, time_out, time_in)
+Passenger(ID_psg, name)
+Pass_in_trip(trip_no, date, ID_psg, place)
+The Company table contains IDs and names of the airlines transporting passengers. The Trip table contains information on the schedule of flights: trip (flight) number, company (airline) ID, plane type, departure city, destination city, departure time, and arrival time. The Passenger table holds IDs and names of the passengers. The Pass_in_trip table contains data on flight bookings: trip number, departure date (day), passenger ID and her seat (place) designation during the flight. It should be noted that
+- scheduled flights are operated daily; the duration of any flight is less than 24 hours; town_from <> town_to;
+- all time and date values are assumed to belong to the same time zone;
+- departure and arrival times are specified with one minute precision;
+- there can be several passengers bearing the same first name and surname (for example, Bruce Willis);
+- the seat (place) designation consists of a number followed by a letter; the number stands for the row, while the letter (a – d) defines the seat position in the grid (from left to right, in alphabetical order;
+- connections and constraints are shown in the database schema below.
+
+
+Q:Find the days with the maximum number of flights departed from Rostov. Result set: number of trips, date.
+
+Ans:
+                SELECT c.class
+                SELECT MAX(ss.num), ss.date
+                FROM
+                (SELECT COUNT(super.trip_no) as num,super.date
+                FROM
+                (SELECT t.trip_no, p.date
+                FROM Trip t JOIN Pass_in_trip p
+                        ON (t.trip_no=p.trip_no)
+                Where t.town_from='Rostov'
+                GROUP BY t.trip_no,p.date) AS super
+                Group BY super.date) AS ss
+                GROUP BY ss.date
