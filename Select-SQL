@@ -58,7 +58,7 @@ The Company table contains IDs and names of the airlines transporting passengers
 - connections and constraints are shown in the database schema below.
 
 
-Q:Find the days with the maximum number of flights departed from Rostov. Result set: number of trips, date.
+Q1:Find the days with the maximum number of flights departed from Rostov. Result set: number of trips, date.
 
 Ans:
                 SELECT c.class
@@ -73,3 +73,30 @@ Ans:
                 GROUP BY t.trip_no,p.date) AS super
                 Group BY super.date) AS ss
                 GROUP BY ss.date
+
+
+Q2:Find out the number of routes with the greatest number of flights (trips).
+Notes. 
+1) A - B and B - A are to be considered DIFFERENT routes.
+2) Use the Trip table only.
+
+
+Ans:
+        SELECT b.num AS qty
+                from
+                (SELECT COUNT(route_num) AS num, route_num
+                        FROM
+                        (SELECT COUNT(trip_no) AS route_num,town_from,town_to
+                                from Trip
+                                GROUP BY town_from,town_to) AS a 
+                        GROUP BY route_num) AS b
+                JOIN
+                (SELECT MAX(route_num) AS max
+                        FROM
+                        (SELECT COUNT(trip_no) AS route_num,town_from,town_to
+                        from Trip
+                        GROUP BY town_from,town_to) AS a
+                        ) AS c
+        ON b.route_num=c.max
+
+Note: Build the table c with the greatest number of flights 
